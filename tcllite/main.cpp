@@ -9,26 +9,23 @@
 int main() {
     auto begin = std::chrono::high_resolution_clock::now();
     int iterations = 10000;
+    int ROWS = 10;
+    int MAX = 10;
+    std::srand(time(NULL));  // seed with time so it always changes
 
     for (int i = 0; i < iterations; ++i) {
         // code to benchmark
         try {
-            Matrix a(3, 2);
-            a(0, 0) = 1;
-            a(0, 1) = 0;
-            a(1, 0) = 1;
-            a(1, 1) = 1;
-            a(2, 0) = 1;
-            a(2, 1) = 2;
-            // std::cout << "A= \n" << a << std::endl;
+            Matrix A(ROWS, 2);
+            Matrix b(ROWS, 1);
+            // create 2d Matrix
+            for (int i = 0; i < ROWS; ++i) {
+                A(i, 0) = 1;
+                A(i, 1) = std::rand() % MAX;
+                b(0, i) = std::rand() % MAX;
+            }
 
-            Matrix b(3, 1);
-            b(0, 0)= 6;
-            b(0, 1)= 0;
-            b(0, 2)= 0;
-            // std::cout << "b= \n" << b << std::endl;
-
-            (~a * a).Solve(~a * b);
+            (~A * A).Solve(~A * b);
             // std::cout << "Example Solution1:\n" << s1 << std::endl;
         }
         catch ( std::exception e ) {

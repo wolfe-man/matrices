@@ -11,35 +11,23 @@ int main() {
 
     auto begin = std::chrono::high_resolution_clock::now();
     int ITERATIONS = 10000;
-    int MAX = 10000;
+    int ROWS = 10;
+    int MAX = 10;
     std::srand(time(NULL));  // seed with time so it always changes
 
     for (int i = 0; i < ITERATIONS; ++i) {
         // code to benchmark
         try {
-            MatrixXd A(MAX, 2);
-            VectorXd b(MAX);
+            MatrixXd A(ROWS, 2);
+            VectorXd b(ROWS);
             // create 2d Matrix
-            for (int i = 0; i < MAX; ++i) {
-                A(i, 0) = std::rand() % MAX;
+            for (int i = 0; i < ROWS; ++i) {
+                A(i, 0) = 1;
                 A(i, 1) = std::rand() % MAX;
                 b(i) = std::rand() % MAX;
             }
 
             (A.transpose() * A).ldlt().solve(A.transpose() * b);
-
-            //A.colPivHouseholderQr().solve(b);
-            // std::cout << "Here is the right hand side b:\n" << b << std::endl;
-            // std::cout << "The least-squares solution is:\n"
-            //           << A.jacobiSvd(Eigen::ComputeThinU |
-            //                          Eigen::ComputeThinV).solve(b) << std::endl;
-
-            // std::cout << "The solution using the QR decomposition is:\n"
-            //           << A.colPivHouseholderQr().solve(b) << std::endl;
-
-            // std::cout << "The solution using normal equations is:\n"
-            //           << (A.transpose() * A).ldlt().solve(A.transpose() * b)
-            //           << std::endl;
         }
         catch ( std::exception e ) {
             std::cout << e.what() << std::endl;

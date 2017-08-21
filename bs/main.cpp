@@ -54,13 +54,11 @@ Vector classical_gaussian_elimination(Matrix A, Vector b)
     return back_substitution(A,b);
 }
 
-Matrix transpose(Matrix m) {
-    double arr[2][3];
-
-    Matrix temp = arr;
-    for (int i = 0; i < m.dim1(); ++i) {
-        for (int j = 0; j < m.dim2(); ++j) {
-            temp(j, i) = m(i, j);
+Matrix transpose(Matrix A) {
+    Matrix temp(A.dim2(), A.dim1());
+    for (int i = 0; i < A.dim1(); ++i) {
+        for (int j = 0; j < A.dim2(); ++j) {
+            temp(j, i) = A(i, j);
         }
     }
 
@@ -80,9 +78,7 @@ Vector multiply_mv(Matrix A, Vector b)
 
 Matrix multiply_mm(Matrix l, Matrix r)
 {
-    double arr[2][2];
-
-    Matrix temp = arr;
+    Matrix temp(l.dim1(), r.dim2());
     int sum = 0;
     for (int i = 0; i < l.dim1(); ++i) {
         for (int j = 0; j < r.dim2(); ++j) {
@@ -90,7 +86,7 @@ Matrix multiply_mm(Matrix l, Matrix r)
             for (int x = 0; x < l.dim2(); ++x) {
                 sum += l[i][x] * r[x][j];
             }
-            temp[i][j] = sum;
+            temp(i, j) = sum;
         }
     }
     return temp;
@@ -100,23 +96,30 @@ Matrix multiply_mm(Matrix l, Matrix r)
 
 int main() {
     auto begin = std::chrono::high_resolution_clock::now();
-    int iterations = 10000;
+    int iterations = 1;
+    int ROWS = 10;
+    int MAX = 10;
+    std::srand(time(NULL));  // seed with time so it always changes
 
     for (int i = 0; i < iterations; ++i) {
         // code to benchmark
         try
         {
-            double arr[][2] = { {1, 0}, {1, 1}, {1, 2} };
-            Matrix a(arr);
-            //std::cout << a << std::endl;
-
-            double arr_2[] = {6, 0, 0};
-            Vector b(arr_2);
-            //std::cout << b << std::endl;
-
-            classical_gaussian_elimination(multiply_mm(transpose(a), a),
-                                           multiply_mv(transpose(a), b));
-            //cout << "x:\n" << x << '\n';
+            Matrix A(ROWS, 2);
+            Vector b(ROWS);
+            for (int i = 0; i < ROWS; ++i) {
+                A(i, 0) = 1;
+                A(i, 1) = std::rand() % MAX;
+                b(i) = std::rand() % MAX;
+            }
+            classical_gaussian_elimination(
+                multiply_mm(transpose(A), A),
+                multiply_mv(transpose(A), b));
+            /*
+              cout << "x:\n" << classical_gaussian_elimination(
+              multiply_mm(transpose(A), A), multiply_mv(transpose(A), b))
+            << '\n';
+            */
 
         }
         catch (exception& e) {

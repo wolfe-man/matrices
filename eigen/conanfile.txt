@@ -1,0 +1,5 @@
+[requires]
+Eigen3/3.2.9@bilke/stable
+
+[generators]
+cmake

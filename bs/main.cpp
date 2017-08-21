@@ -7,49 +7,45 @@
 #include "matrix.h"
 #include "matrixio.h"
 
-using namespace std;
 using Numeric_lib::Index;
 
 typedef Numeric_lib::Matrix<double, 2> Matrix;
 typedef Numeric_lib::Matrix<double, 1> Vector;
 
-void classical_elimination(Matrix& A, Vector& b)
-{
+void classical_elimination(Matrix& A, Vector& b) {
     const Index n = A.dim1();
 
     // traverse from 1st column to the next-to-last filling zeros into all
     // elements under the diagonal
-    for (Index j = 0; j<n-1; ++j) {
-        const double pivot = A(j,j);
+    for (Index j = 0; j < n-1; ++j) {
+        const double pivot = A(j, j);
 
         // fill zeros into each element under the diagonal of the ith row
-        for (Index i = j+1; i<n; ++i) {
-            const double mult = A(i,j) / pivot;
-            A[i].slice(j) = scale_and_add(A[j].slice(j),-mult,A[i].slice(j));
+        for (Index i = j+1; i < n; ++i) {
+            const double mult = A(i, j) / pivot;
+            A[i].slice(j) = scale_and_add(A[j].slice(j), -mult, A[i].slice(j));
             b(i) -= mult * b(j);    // make the corresponding change to b
         }
     }
 }
 
-Vector back_substitution(Matrix& A, Vector& b)
-{
+Vector back_substitution(Matrix& A, Vector& b) {
     const Index n = A.dim1();
     Vector x(n);
 
-    for (Index i = n-1; i>=0; --i) {
-        double s = b(i) - dot_product(A[i].slice(i+1),x.slice(i+1));
+    for (Index i = n-1; i >= 0; --i) {
+        double s = b(i) - dot_product(A[i].slice(i+1), x.slice(i+1));
 
-        double m = A(i,i);
+        double m = A(i, i);
         x(i) = s / m;
         b(i) = x(i);
-        A(i,i) = 1;
-        A[i].slice(i+1) = scale_and_add(A[i].slice(i+1),-1.0,A[i].slice(i+1));
+        A(i, i) = 1;
+        A[i].slice(i+1) = scale_and_add(A[i].slice(i+1), -1.0, A[i].slice(i+1));
     }
     return x;
 }
 
-Vector classical_gaussian_elimination(Matrix A, Vector b)
-{
+Vector classical_gaussian_elimination(Matrix A, Vector b) {
     classical_elimination(A,b);
     return back_substitution(A,b);
 }
@@ -118,15 +114,15 @@ int main() {
             /*
               cout << "x:\n" << classical_gaussian_elimination(
               multiply_mm(transpose(A), A), multiply_mv(transpose(A), b))
-            << '\n';
+              << '\n';
             */
 
         }
-        catch (exception& e) {
-            cerr << "Exception: " << e.what() << '\n';
+        catch (std::exception& e) {
+            std::cerr << "Exception: " << e.what() << '\n';
         }
         catch (...) {
-            cerr << "Exception\n";
+            std::cerr << "Exception\n";
         }
     }
     auto end = std::chrono::high_resolution_clock::now();

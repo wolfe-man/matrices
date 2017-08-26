@@ -9,46 +9,55 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    int i;
-    gsl_vector * v = gsl_vector_alloc (100);
 
-    for (i = 0; i < 100; i++)
-    {
-        gsl_vector_set (v, i, 1.23 + i);
+    auto begin = std::chrono::high_resolution_clock::now();
+    int ITERATIONS = 10000;
+    int ROWS = 10;
+    int MAX = 10;
+    std::srand(time(NULL));  // seed with time so it always changes
+
+    for (int i = 0; i < ITERATIONS; ++i) {
+        // code to benchmark
+        try {
+            gsl_matrix * a = gsl_matrix_alloc(ROWS, 2);
+            gsl_vector * b = gsl_vector_alloc(ROWS);
+
+            // Create A and b
+            for (int i = 0; i < ROWS; i++) {
+                gsl_matrix_set(a, i, 0, std::rand() % MAX);
+                gsl_matrix_set(a, i, 1, std::rand() % MAX);
+                gsl_vector_set(b, i, std::rand() % MAX);
+            }
+
+            gsl_vector * aTb = gsl_vector_alloc(2);
+            gsl_blas_dgemv(CblasTrans, 1, a, b, 0, aTb);
+
+            // aTa
+            gsl_matrix * aTa = gsl_matrix_alloc(2, 2);
+            gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, a, a, 0, aTa);
+
+            // SOLVE
+            gsl_vector * x = gsl_vector_alloc(2);
+            int s;
+            gsl_permutation * p = gsl_permutation_alloc(2);
+            gsl_linalg_LU_decomp(aTa, p, &s);
+            gsl_linalg_LU_solve(aTa, p, aTb, x);
+
+            /*
+              printf ("x = \n");  // LEAST SQUARES ANSWER
+              gsl_vector_fprintf (stdout, x, "%g");
+            */
+        }
+        catch ( std::exception e ) {
+            std::cout << e.what() << std::endl;
+        }
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast
+                    <std::chrono::nanoseconds>(end-begin).count();
+    std::cout << duration << "ns total, average : "
+              << duration / ITERATIONS << "ns." << std::endl;
 
-    gsl_vector * w = gsl_vector_alloc (100);
-
-    gsl_vector_memcpy(w, v);
-    gsl_vector_add(w, v);
-
-    cout << gsl_vector_get(w, 1) << "\n";
-    cout << gsl_vector_max(w) << "\n";
-    cout << gsl_vector_min(w) << "\n";
-
-
-    gsl_vector_free (v);
-    gsl_vector_free (w);
-
-
-    gsl_matrix * m = gsl_matrix_alloc (100, 100);
-
-    for (int i = 0; i < 100; i++)
-        for (int j = 0; j < 100; j++)
-            gsl_matrix_set (m, i, j, 0.23 + i + j);
-
-    gsl_matrix * mT = gsl_matrix_alloc (100, 100);
-
-    gsl_matrix_transpose_memcpy(mT, m);
-
-    cout << gsl_matrix_get(m, 49, 49) << "\n";
-    cout << gsl_matrix_get(m, 99, 0) << "\n";
-
-    cout << gsl_matrix_get(mT, 49, 49) << "\n";
-    cout << gsl_matrix_get(mT, 99, 0) << "\n";
-
-    cout << gsl_matrix_max(m) << "\n";
-    cout << gsl_matrix_min(m) << "\n";
 
     return 0;
 }

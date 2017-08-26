@@ -20,7 +20,7 @@ int main() {
         try {
             MatrixXd A(ROWS, 2);
             VectorXd b(ROWS);
-            // create 2d Matrix
+            // Create A and b
             for (int i = 0; i < ROWS; ++i) {
                 A(i, 0) = 1;
                 A(i, 1) = std::rand() % MAX;
